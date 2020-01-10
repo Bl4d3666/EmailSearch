@@ -256,8 +256,8 @@ Function Invoke-HashSearch{
     <#
     
 	.SYNOPSIS
-    Report breached Emails via the sites https://hacked-emails.com API service.
-    Import-Module EmailLookup.ps1
+    Report breached Emails via the sites https://hashes.org API service.
+    Import-Module SearchPasswords.ps1
 
     Author: Michael Merlino
     License: Free
@@ -268,26 +268,20 @@ Function Invoke-HashSearch{
     The will connect to the websites via their api and check if the hash with plain text passwords.
     
     .PARAMETER HashList
-    A file to import the emails.
-
-    .PARAMETER OutFile
-    A file to output the results to.
-        
+    A file to import the hash.
+       
     .EXAMPLE
     
     C:\PS> Invoke-HashSearch -Hashlist hash.txt
     
     Description
     -----------
-    Search against an email list.
+    Search against an hash list.
      
-    .EXAMPLE
-    
-    C:\PS> Invoke-EmailSearch -EmailList emails.txt -OutFile email
     
     Description
     -----------
-    Search against an email list and outputs it to a file
+    Search against an hash list and outputs it to console
    
     #>
 
@@ -316,7 +310,7 @@ Write-Host `n $text -ForegroundColor Green
    
    else
     {
-        ###### If a Email List is specified use it ######
+        ###### If a hash List is specified use it ######
         Write-Host "[*] Using Hash list"
         $HashArray = @()
         try 
@@ -364,4 +358,92 @@ ForEach($Hash in $HashArray){
     $timefinished = Get-Date
     $stopwatch.Stop()
     Write-Host -ForegroundColor Yellow "Current time is $($timefinished.ToShortTimeString()) it took" $stopwatch.Elapsed.Seconds "Seconds"
+}
+
+Function Invoke-HunterIO{   
+    <#
+    
+	.SYNOPSIS
+    Import-Module SearchPasswords.ps1
+
+    Author: Michael Merlino
+    License: Free
+    Required Dependencies: None
+    Optional Dependencies: None
+    
+    .DESCRIPTION
+    The will connect to the websites via their api and check if the hash with plain text passwords.
+    
+    .PARAMETER Domain
+    A file to import the emails.
+       
+    .EXAMPLE
+    
+    C:\PS> Invoke-Hunterio -Domain example.com
+        
+    Description
+    -----------
+    Search against an domain
+   
+    #>
+
+    Param(
+
+    [Parameter(Position = 0, Mandatory = $false)]
+    [string]
+    $Domain = "",
+    [Parameter(Position = 1, Mandatory = $false)]
+    [string]
+    $OutFile = "",
+    [Parameter(Position = 0, Mandatory = $false)]
+    [string]
+    $limit = ""
+    
+    )
+
+###### URL Hash lookups ######
+    $APIKey = Read-Host -Prompt 'Enter you API Key'     
+    $HunterURL = 'https://api.hunter.io/v2/domain-search?domain=cbussuper.com.au&limit=100&api_key=$APIKey'
+
+    if ($Domain -eq "")
+        {
+            Write-Host -ForegroundColor "red" "[*] Could find Domain. Try again specifying the Domain with the -Domain option."
+            break 
+        }
+   
+    $timestarted = Get-Date
+    $stopwatch = [Diagnostics.Stopwatch]::StartNew()
+    Write-Host -ForegroundColor Yellow "[*] Let the searching being. Current time is $($timestarted.ToShortTimeString())"
+    Write-Host "[*] Searching Now"
+	   
+    $HunterRequest = invoke-webrequest -Uri $HunterURL
+    $HunterJson = $HunterRequest | ConvertFrom-Json
+    $HunterEmail = $HunterJson.data.emails | Select value
+
+    if ($HunterEmail -contains $null)
+        {
+            write-host -ForegroundColor Red 'Emails address found for domain' $domain ':('
+        }
+     
+     else
+        {
+             foreach ($Email in $HunterEmail)
+                {
+                    Write-Host -ForegroundColor Green '[*] Email found for Domain' $Email
+                    $Report += $Email | Out-String
+                }      
+        }
+
+    if ($OutFile -ne "")
+        {
+            Add-Content -Path "$OutFile.txt" $Report
+            Write-Host -ForegroundColor Green "[*] Any dumps that were founded have been output to $OutFile.txt"
+        }
+    
+    Write-Host -ForegroundColor Green "[*] Dumping complete" `n
+    Write-Host -ForegroundColor Green "[*] Hashes found  $current_hash" `n
+    $timefinished = Get-Date
+    $stopwatch.Stop()
+    Write-Host -ForegroundColor Yellow "Current time is $($timefinished.ToShortTimeString()) it took" $stopwatch.Elapsed.Seconds "Seconds"
+
 }
