@@ -269,6 +269,9 @@ Function Invoke-HashSearch{
     
     .PARAMETER HashList
     A file to import the hash.
+
+    .PARAMETER OutFile
+    A file to output the results to.
        
     .EXAMPLE
     
@@ -290,7 +293,6 @@ Function Invoke-HashSearch{
      [Parameter(Position = 0, Mandatory = $false)]
      [string]
      $Hashlist = "",
-
      [Parameter(Position = 1, Mandatory = $false)]
      [string]
      $OutFile
@@ -304,7 +306,7 @@ Write-Host `n $text -ForegroundColor Green
 
     if ($Hashlist -eq "")
     {
-    Write-Host -ForegroundColor "red" "[*] Could find Hash List. Try again specifying the Hash List with the -Hashlist option."
+    Write-Host -ForegroundColor "red" "[*] Could not find Hash list. Try again specifying the Hash List with the -Hashlist option."
     break 
     }
    
@@ -372,14 +374,20 @@ Function Invoke-HunterIO{
     Optional Dependencies: None
     
     .DESCRIPTION
-    The will connect to the websites via their api and check if the hash with plain text passwords.
+    The will connect to the websites via their api and check for email address for a given domain.
     
     .PARAMETER Domain
-    A file to import the emails.
+    Domain to searh for emails.
+
+    .PARAMETER OutFile
+    A file to output the results to.
+
+    .PARAMETER limit
+    Limits the result set.
        
     .EXAMPLE
     
-    C:\PS> Invoke-Hunterio -Domain example.com
+    C:\PS> Invoke-Hunterio -Domain example.com -Outfile Users
         
     Description
     -----------
@@ -395,15 +403,14 @@ Function Invoke-HunterIO{
     [Parameter(Position = 1, Mandatory = $false)]
     [string]
     $OutFile = "",
-    [Parameter(Position = 0, Mandatory = $false)]
+    [Parameter(Position = 3, Mandatory = $false)]
     [string]
-    $limit = ""
-    
+    $limit = "100"  
     )
-
-###### URL Hash lookups ######
+Write-Host `n $text -ForegroundColor Green
+###### URL Email lookups ######
     $APIKey = Read-Host -Prompt 'Enter you API Key'     
-    $HunterURL = 'https://api.hunter.io/v2/domain-search?domain=cbussuper.com.au&limit=100&api_key=$APIKey'
+    $HunterURL = "https://api.hunter.io/v2/domain-search?domain=cbussuper.com.au&limit=1000&api_key=$APIKey"
 
     if ($Domain -eq "")
         {
@@ -429,8 +436,8 @@ Function Invoke-HunterIO{
         {
              foreach ($Email in $HunterEmail)
                 {
-                    Write-Host -ForegroundColor Green '[*] Email found for Domain' $Email
-                    $Report += $Email | Out-String
+                    Write-Host -ForegroundColor Green "`t [*] Email found for $domain Email address is" $Email.Value
+                    $Report += $Email.Value | Out-String
                 }      
         }
 
@@ -441,9 +448,7 @@ Function Invoke-HunterIO{
         }
     
     Write-Host -ForegroundColor Green "[*] Dumping complete" `n
-    Write-Host -ForegroundColor Green "[*] Hashes found  $current_hash" `n
     $timefinished = Get-Date
     $stopwatch.Stop()
     Write-Host -ForegroundColor Yellow "Current time is $($timefinished.ToShortTimeString()) it took" $stopwatch.Elapsed.Seconds "Seconds"
-
 }
