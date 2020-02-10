@@ -410,7 +410,7 @@ Function Invoke-HunterIO{
 Write-Host `n $text -ForegroundColor Green
 ###### URL Email lookups ######
     $APIKey = Read-Host -Prompt 'Enter you API Key'     
-    $HunterURL = "https://api.hunter.io/v2/domain-search?domain=cbussuper.com.au&limit=1000&api_key=$APIKey"
+    $HunterURL = "https://api.hunter.io/v2/domain-search?domain=$Domain&limit=1000&api_key=$APIKey"
 
     if ($Domain -eq "")
         {
