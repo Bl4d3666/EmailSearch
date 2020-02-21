@@ -76,7 +76,11 @@ Function Invoke-EmailSearch{
 
      [Parameter(Position = 1, Mandatory = $false)]
      [string]
-     $OutFile
+     $OutFile,
+
+     [Parameter(Position = 1, Mandatory = $false)]
+     [string]
+     $apiKey
 
     )
 
@@ -141,15 +145,18 @@ ForEach($Email in $EmailListArray)
 ################### Have I been Pwned ###################
 $hibp = 0
 
-[Net.ServicePointManager]::SecurityProtocol = [Net.SecurityProtocolType]::Tls12
+    [Net.ServicePointManager]::SecurityProtocol = [Net.SecurityProtocolType]::Tls12
     $hibpUri = $Null
     $hibprequest = $Null
     $hibpUri = $hibpURL+$Email
     
+    $headers = New-Object "System.Collections.Generic.Dictionary[[String],[String]]"
+    $headers.Add("hibp-api-key", $apiKey)
+
 try
         {
 			[Net.ServicePointManager]::SecurityProtocol = [Net.SecurityProtocolType]::Tls12
-             $hibprequest = Invoke-RestMethod -Uri $hibpUri -UserAgent $UserAgentString
+             $hibprequest = Invoke-RestMethod -Uri $hibpUri -UserAgent $UserAgentString -Headers $headers
         }
          Catch [System.Net.WebException] {
             Switch ($_.Exception.Message) {
