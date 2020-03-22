@@ -87,7 +87,7 @@ Function Invoke-EmailSearch{
 Write-Host `n $text -ForegroundColor Green
 
     ###### URL Email lookups ######
-    $hibpURL = "https://haveibeenpwned.com/api/v2/breachedaccount/"
+    $hibpURL = "https://haveibeenpwned.com/api/v3/breachedaccount/"
     
     ###### Database lookups ######
     $DatabaseRequest = Invoke-WebRequest 'https://raidforums.com/Announcement-Database-Index-CLICK-ME'
